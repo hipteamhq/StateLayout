@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">StateLayoutLib</string>
+
+    <string name="all_loading_error">Loading error, try again pls!</string>
+    <string name="all_no_content">No content!</string>
+
+</resources>
