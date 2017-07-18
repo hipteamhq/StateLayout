@@ -63,16 +63,18 @@ public class StateLayout extends FrameLayout {
     /////////////
 
     public void showContent() {
-        hideLoading();
-        hideError();
-        hideEmpty();
-        contentView.setAlpha(0f);
-        contentView.setVisibility(VISIBLE);
-        contentView.animate().alpha(1f).setDuration(1000).start();
+        if (contentView.getVisibility() != VISIBLE) {
+            hideLoading();
+            hideError();
+            hideEmpty();
+            contentView.setAlpha(0f);
+            contentView.setVisibility(VISIBLE);
+            contentView.animate().alpha(1f).setDuration(600).start();
+        }
     }
 
     public void hideContent() {
-        contentView.setVisibility(VISIBLE);
+        contentView.setVisibility(INVISIBLE);
     }
 
     /////////////
@@ -91,7 +93,7 @@ public class StateLayout extends FrameLayout {
 
     public void hideLoading() {
         if (loadingView != null) {
-            loadingView.animate().alpha(0f).setDuration(500).setListener(new AnimatorListenerAdapter() {
+            loadingView.animate().alpha(0f).setDuration(600).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     removeView(loadingView);
@@ -117,8 +119,13 @@ public class StateLayout extends FrameLayout {
             errorText.setText(errorTextId);
         }
         hideContent();
+        hideLoading();
+        hideEmpty();
         if (errorView.getParent() == null) {
+            errorView.setAlpha(0f);
+            errorView.setVisibility(VISIBLE);
             addView(errorView);
+            errorView.animate().alpha(1f).setDuration(600).start();
         }
     }
 
@@ -127,6 +134,10 @@ public class StateLayout extends FrameLayout {
             removeView(errorView);
             errorView = null;
         }
+    }
+
+    public View getErrorView() {
+        return errorView;
     }
 
     /////////////
@@ -145,8 +156,13 @@ public class StateLayout extends FrameLayout {
             emptyText.setText(emptyTextId);
         }
         hideContent();
+        hideLoading();
+        hideError();
         if (emptyView.getParent() == null) {
+            emptyView.setAlpha(0f);
+            emptyView.setVisibility(VISIBLE);
             addView(emptyView);
+            emptyView.animate().alpha(1f).setDuration(600).start();
         }
     }
 
