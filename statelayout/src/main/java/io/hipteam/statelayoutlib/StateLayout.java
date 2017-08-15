@@ -1,7 +1,5 @@
 package io.hipteam.statelayoutlib;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -10,7 +8,12 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import java.util.Date;
+
 public class StateLayout extends FrameLayout {
+
+    private static final int ANIMATION_TIME = 600;
+    private static final int MINIMUM_LOADING_TIME_TO_ANIMATION = 1000;
 
     private int loadingViewResId;
     private int errorViewResId;
@@ -22,6 +25,8 @@ public class StateLayout extends FrameLayout {
     private View loadingView;
     private View errorView;
     private View emptyView;
+
+    private long loadingStarted = 0L;
 
     public StateLayout(Context context) {
         this(context, null);
@@ -69,7 +74,7 @@ public class StateLayout extends FrameLayout {
             hideEmpty();
             contentView.setAlpha(0f);
             contentView.setVisibility(VISIBLE);
-            contentView.animate().alpha(1f).setDuration(600).start();
+            contentView.animate().alpha(1f).setDuration(getAnimTime()).start();
         }
     }
 
@@ -89,17 +94,13 @@ public class StateLayout extends FrameLayout {
         if (loadingView.getParent() == null) {
             addView(loadingView);
         }
+        loadingStarted = new Date().getTime();
     }
 
     public void hideLoading() {
         if (loadingView != null) {
-            loadingView.animate().alpha(0f).setDuration(600).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    removeView(loadingView);
-                    loadingView = null;
-                }
-            }).start();
+            removeView(loadingView);
+            loadingView = null;
         }
     }
 
@@ -114,7 +115,7 @@ public class StateLayout extends FrameLayout {
         if (errorView == null) {
             errorView = LayoutInflater.from(getContext()).inflate(errorViewResId, null);
         }
-        TextView errorText = (TextView) errorView.findViewById( R.id.layout_state_layout_default_error_view_text);
+        TextView errorText = (TextView) errorView.findViewById(R.id.layout_state_layout_default_error_view_text);
         if (errorText != null) {
             errorText.setText(errorTextId);
         }
@@ -125,7 +126,7 @@ public class StateLayout extends FrameLayout {
             errorView.setAlpha(0f);
             errorView.setVisibility(VISIBLE);
             addView(errorView);
-            errorView.animate().alpha(1f).setDuration(600).start();
+            errorView.animate().alpha(1f).setDuration(getAnimTime()).start();
         }
     }
 
@@ -162,7 +163,7 @@ public class StateLayout extends FrameLayout {
             emptyView.setAlpha(0f);
             emptyView.setVisibility(VISIBLE);
             addView(emptyView);
-            emptyView.animate().alpha(1f).setDuration(600).start();
+            emptyView.animate().alpha(1f).setDuration(getAnimTime()).start();
         }
     }
 
@@ -171,6 +172,12 @@ public class StateLayout extends FrameLayout {
             removeView(emptyView);
             emptyView = null;
         }
+    }
+
+
+    private long getAnimTime() {
+        // If the loading time is bigger then the minimum then show the content with animation
+        return (new Date().getTime() - loadingStarted) < MINIMUM_LOADING_TIME_TO_ANIMATION ? 0 : ANIMATION_TIME;
     }
 
 }
