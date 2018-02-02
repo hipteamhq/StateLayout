@@ -41,7 +41,8 @@
 
         android:id="@+id/state_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:error_view_layout="@layout/custom_error">
 
         <TextView
             android:id="@+id/content"

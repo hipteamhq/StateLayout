@@ -1,11 +1,15 @@
 package io.hipteam.statelayout.demo;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import io.hipteam.statelayoutlib.StateLayout;
 
@@ -13,11 +17,7 @@ public class MainActivity extends AppCompatActivity {
 
     private StateLayout stateLayout;
     private TextView content;
-
-    private Button success;
-    private Button error;
-    private Button empty;
-
+    private View errorView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,26 +26,52 @@ public class MainActivity extends AppCompatActivity {
 
         stateLayout = (StateLayout) findViewById(R.id.state_layout);
         content = (TextView) findViewById(R.id.content);
+        errorView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.custom_error_from_code_by_inflate, null);
 
-        success = (Button) findViewById(R.id.success);
-        error = (Button) findViewById(R.id.error);
-        empty = (Button) findViewById(R.id.empty);
-
-        success.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.success).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new SuccessOperation().execute();
             }
         });
-
-        error.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.error).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new ErrorOperation().execute();
+               // new ErrorOperation().execute();
+                final int[] selectedPosition = {-1};
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("Choose type");
+                builder.setSingleChoiceItems(new String[]{"Default", "Set error view by layout resource id", "Set error view by inflated view"}, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        selectedPosition[0] = i;
+                    }
+                });
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        switch (selectedPosition[0]) {
+                            case 0:
+                                stateLayout.setErrorView(null);
+                                stateLayout.setErrorViewResId(io.hipteam.statelayoutlib.R.layout.layout_state_layout_default_error_view);
+                                new ErrorOperation().execute();
+                                break;
+                            case 1:
+                                stateLayout.setErrorViewResId(R.layout.custom_error);
+                                new ErrorOperation().execute();
+                                break;
+                            case 2:
+                                stateLayout.setErrorView(errorView);
+                                new ErrorOperation().execute();
+                                break;
+                        }
+                    }
+                });
+                builder.show();
+
             }
         });
-
-        empty.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.empty).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new EmptyOperation().execute();
@@ -77,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Result result) {
             super.onPostExecute(result);
             content.setText(result.getMessage());
-            stateLayout.hideLoading();
+            stateLayout.showContent();
         }
     }
 
@@ -99,14 +125,19 @@ public class MainActivity extends AppCompatActivity {
             stateLayout.showLoading();
         }
 
-
-
         @Override
         protected void onPostExecute(Result result) {
             super.onPostExecute(result);
             content.setText(result.getMessage());
-            stateLayout.hideLoading();
             stateLayout.showError();
+            if (stateLayout.getErrorView().findViewById(R.id.reload) != null) {
+                stateLayout.getErrorView().findViewById(R.id.reload).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(MainActivity.this, "RELOAD", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
     }
 
@@ -132,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Result result) {
             super.onPostExecute(result);
             content.setText(result.getMessage());
-            stateLayout.hideLoading();
             stateLayout.showEmpty();
         }
     }
