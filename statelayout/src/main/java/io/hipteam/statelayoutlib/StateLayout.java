@@ -72,19 +72,19 @@ public class StateLayout extends FrameLayout {
             removeLoadingView();
             removeErrorView();
             removeEmptyView();
-            contentView.setAlpha(0f);
+            //contentView.setAlpha(0f);
             contentView.setVisibility(VISIBLE);
-            contentView
-                    .animate()
-                    .alpha(1f)
-                    .setDuration(getAnimTime())
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            lastAnimationTime = new Date().getTime();
-                        }
-                    })
-                    .start();
+//            contentView
+//                    .animate()
+//                    .alpha(1f)
+//                    .setDuration(getAnimTime())
+//                    .setListener(new AnimatorListenerAdapter() {
+//                        @Override
+//                        public void onAnimationEnd(Animator animation) {
+//                            lastAnimationTime = new Date().getTime();
+//                        }
+//                    })
+//                    .start();
         }
     }
 
@@ -172,10 +172,10 @@ public class StateLayout extends FrameLayout {
         removeLoadingView();
         removeEmptyView();
         if (errorView.getParent() == null) {
-            errorView.setAlpha(0f);
+            //errorView.setAlpha(0f);
             errorView.setVisibility(VISIBLE);
             addView(errorView);
-            errorView.animate().alpha(1f).setDuration(getAnimTime()).start();
+            //errorView.animate().alpha(1f).setDuration(getAnimTime()).start();
         }
     }
 
@@ -225,10 +225,10 @@ public class StateLayout extends FrameLayout {
         removeLoadingView();
         removeErrorView();
         if (emptyView.getParent() == null) {
-            emptyView.setAlpha(0f);
+            //emptyView.setAlpha(0f);
             emptyView.setVisibility(VISIBLE);
             addView(emptyView);
-            emptyView.animate().alpha(1f).setDuration(getAnimTime()).start();
+            //emptyView.animate().alpha(1f).setDuration(getAnimTime()).start();
         }
     }
 
