@@ -1,5 +1,7 @@
 package io.hipteam.statelayoutlib;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -24,6 +26,8 @@ public class StateLayout extends FrameLayout {
     private View contentView;
     private int animationTime = 600;
     private int minimumLoadingTimeToAnimation = 1000;
+    private int minimumLoadingTimeDistanceBetweenAnimations = 5000;
+    private long lastAnimationTime = 0L;
     private long loadingStarted = 0L;
 
     public StateLayout(Context context) {
@@ -70,7 +74,17 @@ public class StateLayout extends FrameLayout {
             removeEmptyView();
             contentView.setAlpha(0f);
             contentView.setVisibility(VISIBLE);
-            contentView.animate().alpha(1f).setDuration(getAnimTime()).start();
+            contentView
+                    .animate()
+                    .alpha(1f)
+                    .setDuration(getAnimTime())
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            lastAnimationTime = new Date().getTime();
+                        }
+                    })
+                    .start();
         }
     }
 
@@ -241,7 +255,9 @@ public class StateLayout extends FrameLayout {
 
     private long getAnimTime() {
         // If the loading time is bigger then the minimum then show the content with animation
-        return (new Date().getTime() - loadingStarted) < minimumLoadingTimeToAnimation ? 0 : animationTime;
+        long now = new Date().getTime();
+        return ((now - loadingStarted) < minimumLoadingTimeToAnimation)
+                || (now - lastAnimationTime < minimumLoadingTimeDistanceBetweenAnimations) ? 0 : animationTime;
     }
 
     private void log(String s) {
